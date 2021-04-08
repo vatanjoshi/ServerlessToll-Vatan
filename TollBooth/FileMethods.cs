@@ -45,6 +45,11 @@ namespace TollBooth
                 {
                     csv.WriteRecords(licensePlates.Select(ToLicensePlateData));
                     await textWriter.FlushAsync();
+                        var blob = container.GetBlockBlobReference(blobName);
+                        await container.CreateIfNotExistsAsync();
+
+                        // Upload blob.
+                        stream.Position = 0;
 
                     _log.LogInformation($"Beginning file upload: {blobName}");
                     try
@@ -52,13 +57,9 @@ namespace TollBooth
                         var container = _blobClient.GetContainerReference(_containerName);
 
                         // Retrieve reference to a blob.
-                        var blob = container.GetBlockBlobReference(blobName);
-                        await container.CreateIfNotExistsAsync();
-
-                        // Upload blob.
-                        stream.Position = 0;
                         // TODO 7: Asynchronously upload the blob from the memory stream.
                         // COMPLETE: await blob...;
+                        await blob.UploadFromStreamAsync(stream);
 
                         successful = true;
                     }
